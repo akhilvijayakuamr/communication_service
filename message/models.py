@@ -40,3 +40,12 @@ class Online(models.Model):
     user = models.IntegerField()
     is_online = models.BooleanField(default=False) 
     last_active = models.DateTimeField(null=True, blank=True)
+    
+    
+    
+class MesssageView(models.Model):
+    chat_room = models.ForeignKey(ChatRoom,  on_delete=models.CASCADE)
+    user = models.IntegerField()
+    view = models.BooleanField(default=False)
+    
+    

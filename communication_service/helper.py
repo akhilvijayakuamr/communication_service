@@ -46,6 +46,12 @@ def perform_operation(data):
     
     elif operation == 'user_offline':
         return user_offline(data)
+    
+    elif operation == 'online_user':
+        return check_online(data)
+    
+    elif operation == 'user_unview':
+        return user_unview(data)
 
         
         
