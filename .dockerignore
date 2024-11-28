@@ -1,0 +1,54 @@
+# Logs and database files
+*.log
+db.sqlite3
+media/
+
+# Compiled files
+*.py[cod]
+__pycache__/
+*$py.class
+
+# Python virtual environments
+.venv/
+.env/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Build artifacts and distributions
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.whl
+*.egg-info/
+.installed.cfg
+*.egg
+*.manifest
+*.spec
+
+# pyenv
+.python-version
+
+# IDE settings
+.vscode/
+.history
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Docker-specific ignores
+Dockerfile
+docker-compose.yml
+*.dockerignore

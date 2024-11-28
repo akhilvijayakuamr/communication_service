@@ -11,7 +11,6 @@ from django.utils import timezone
 
 # Create Room View
 
-
 def create_room(data):
     sender_id= data['sender_id']
     receiver_id = data['receiver_id']
@@ -24,8 +23,6 @@ def create_room(data):
 
 
 # Save Messages
-
-
 
 def save_message(data):
     sender_id= data['sender_id']
@@ -40,7 +37,7 @@ def save_message(data):
         content = message_content
     )
     try:
-        chat_room2 = ChatRoom.objects.get(usprofileer1_id=int(receiver_id), user2_id=int(sender_id))
+        chat_room2 = ChatRoom.objects.get(user1_id=int(receiver_id), user2_id=int(sender_id))
         view = MesssageView.objects.filter(chat_room=chat_room2, user=int(receiver_id), view=True).exists()
         if view:
             message.read=True
@@ -57,13 +54,11 @@ def save_message(data):
 
 # Message details
 
-
 def message_details(data):
     message_content = data.get('message_content')
     message = Message.objects.filter(content=message_content).order_by('-timestamp').first()
     
     if not message:
-        print("No message found with the specified content.")
         return None
     message_obj = {
         'id': message.id,
@@ -79,7 +74,6 @@ def message_details(data):
 
 
 # get all messages
-
 
 def get_all_message(data):
     sender_id= data['sender_id']
@@ -100,9 +94,8 @@ def get_all_message(data):
         serializer = MessageSerializer(messages, many=True)
         return serializer.data
         
-        
     except ChatRoom.DoesNotExist:  
-            return Message.objects.none()
+            return []
     
 
 
@@ -113,29 +106,30 @@ def all_chat_user(data):
         user_id = int(data['user_id']) 
     except AttributeError:
         return []
-    users = ChatRoom.objects.filter(
-        Q(user1_id=user_id) | Q(user2_id=user_id)
-    ).order_by('-created_at')
-
- 
-
+    try:
+        users = ChatRoom.objects.filter(
+            Q(user1_id=user_id) | Q(user2_id=user_id)
+        ).order_by('-created_at')
+    except ChatRoom.DoesNotExist:
+        return []
+    
     chat_friends = []
-
     for user in users:
        
         if user.user1_id == user_id:
             if not any(user.user2_id in item for item in chat_friends):
-                online = Message.objects.filter(chat_room=user, user = user.user2_id, read = False).count()
-                chat_friends.append([user.user2_id, str(online)])
+                message = Message.objects.filter(chat_room=user, user = user.user2_id, read = False).count()
+                online = Online.objects.filter(user=user.user2_id, is_online=True).exists()
+                chat_friends.append([user.user2_id, str(message), online])
         elif user.user2_id == user_id:
             if not any(user.user1_id in item for item in chat_friends):
-                online = Message.objects.filter(chat_room=user, user = user.user1_id, read = False).count()
-                chat_friends.append([user.user1_id, str(online)])
+                message = Message.objects.filter(chat_room=user, user = user.user1_id, read = False).count()
+                online = Online.objects.filter(user=user.user1_id, is_online=True).exists()
+                chat_friends.append([user.user1_id, str(message), online])
     return chat_friends
 
 
 # Save the follow notification
-
 
 def follow_notification(data):
     user_id = int(data['user_id'])
@@ -152,7 +146,6 @@ def follow_notification(data):
 
 # save the post like notification
 
-
 def like_notification(data):
     user_id = int(data['user_id'])
     another_user_id = int(data['another_user_id'])
@@ -167,7 +160,6 @@ def like_notification(data):
 
 
 # save the post comment notification
-
 
 def comment_notification(data):
     user_id = int(data['user_id'])
@@ -184,7 +176,6 @@ def comment_notification(data):
 
 # get all notification
 
-
 def get_notifications(data):
     id = data['user_id']
     if id:
@@ -196,14 +187,13 @@ def get_notifications(data):
             serializer = NotificationSerializer(notifications, many=True)
             return serializer.data
         except Notification.DoesNotExist:
-            return Message.objects.none()
+            return []
     else:
         return []
 
 
 
 # Read all notification
-
 
 def read_notifications(data):
     user_id = int(data['user_id'])
@@ -216,14 +206,13 @@ def read_notifications(data):
             notification.save()
         return 'Read all notification'
     except Notification.DoesNotExist:
-        return Message.objects.none()
+        return 'Read all notification'
     
 
 
 
 
 # Message details
-
 
 def notification_details(data):
     notification_content = data['notification_content']
@@ -281,7 +270,6 @@ def user_offline(data):
     
 # check user is online
 
-
 def check_online(data):
     try:
         user_id = int(data['user_id'])
@@ -293,7 +281,6 @@ def check_online(data):
     
 
 # unview user
-
 
 def user_unview(data):
     sender_id= data['sender_id']

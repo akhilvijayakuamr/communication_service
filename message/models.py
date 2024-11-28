@@ -1,5 +1,8 @@
 from django.db import models
 
+
+# Chat Room model
+
 class ChatRoom(models.Model):
     user1_id = models.IntegerField()  
     user2_id = models.IntegerField()  
@@ -9,7 +12,7 @@ class ChatRoom(models.Model):
         unique_together = ('user1_id', 'user2_id')
 
     
-
+# Message model
 
 class Message(models.Model):
     chat_room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE, related_name='messages')
@@ -24,6 +27,8 @@ class Message(models.Model):
     def __str__(self):
         return f'Message from User {self.user} in {self.chat_room}'
     
+    
+# Notification model
 
 class Notification(models.Model):
     user = models.IntegerField(null=True, blank=True)
@@ -35,13 +40,15 @@ class Notification(models.Model):
     read = models.BooleanField(default=False)
 
 
+# Online model
 
 class Online(models.Model):
     user = models.IntegerField()
     is_online = models.BooleanField(default=False) 
     last_active = models.DateTimeField(null=True, blank=True)
     
-    
+   
+# Message view model 
     
 class MesssageView(models.Model):
     chat_room = models.ForeignKey(ChatRoom,  on_delete=models.CASCADE)

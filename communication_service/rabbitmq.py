@@ -2,6 +2,7 @@ import pika
 import json
 import os
 import django
+from decouple import config
 
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'communication_service.settings')  # Replace with your project name
@@ -12,7 +13,7 @@ from .helper import perform_operation
 
 class RpcServer:
     def __init__(self):
-        connection = pika.BlockingConnection(pika.URLParameters('amqp://guest:guest@172.17.0.2:5672/'))
+        connection = pika.BlockingConnection(pika.URLParameters(config('RABBITMQ_URL')))
         self.channel = connection.channel()
         self.channel.queue_declare(queue='communication_queue')
         self.channel.basic_consume(queue='communication_queue', on_message_callback=self.on_request, auto_ack=True)\
@@ -31,7 +32,6 @@ class RpcServer:
         )
         
     def start(self):
-        print("RPC server is started.... waiting for messages")
         self.channel.start_consuming()
         
         
