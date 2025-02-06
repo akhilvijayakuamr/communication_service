@@ -6,7 +6,7 @@ from message.views import *
 
 def perform_operation(data):
     
-    operation = data['opration']
+    operation = data['operation']
     
     if operation == 'create_room':
         return create_room(data)
@@ -52,6 +52,12 @@ def perform_operation(data):
     
     elif operation == 'user_unview':
         return user_unview(data)
+    
+    elif operation == 'premium':
+        return premium(data)
+    
+    elif operation == 'premium_user':
+        return premium_user(data)
 
         
         

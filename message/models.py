@@ -56,3 +56,14 @@ class MesssageView(models.Model):
     view = models.BooleanField(default=False)
     
     
+# Premium
+
+class Premium(models.Model):
+    customer_id = models.CharField(null=True, blank=True)
+    email = models.EmailField(unique=True)
+    amount = models.IntegerField(null=True, blank=True, default=1000)
+    currency = models.CharField(max_length=20, default="INR")
+    status = models.CharField(max_length=20)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    

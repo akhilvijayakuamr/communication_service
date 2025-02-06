@@ -1,12 +1,10 @@
-# views.py
-
 from django.http import JsonResponse
 from django.views import View
-from .models import ChatRoom, Message, Notification, Online, MesssageView
+from .models import ChatRoom, Message, Notification, Online, MesssageView, Premium
 from django.db.models import Q
 from .serializers import MessageSerializer, NotificationSerializer
 from django.utils import timezone
-
+from . email import send_mail
 
 
 # Create Room View
@@ -211,7 +209,6 @@ def read_notifications(data):
 
 
 
-
 # Message details
 
 def notification_details(data):
@@ -290,6 +287,85 @@ def user_unview(data):
     view.view = False
     view.save()
     return "unview"
+
+
+
+# premium data store
+
+def premium(data):
+    customer_id = data['customer_id'][0] if isinstance(data['customer_id'], tuple) else data['customer_id']
+    email = data['email'][0] if isinstance(data['email'], tuple) else data['email']
+    amount = data['amount'][0] if isinstance(data['amount'], tuple) else data['amount']
+    currency = data['currency'][0] if isinstance(data['currency'], tuple) else data['currency']
+    status = data['status'][0] if isinstance(data['status'], tuple) else data['status']
+    
+    print(type(customer_id),"===", customer_id, type(email),"===", email,type(amount),"===", email,type(currency),"=====",currency, type(status),"===",status)
+    
+    payment, create = Premium.objects.get_or_create(
+        customer_id = customer_id,
+        email = email,
+        amount = int(amount),
+        currency = currency,
+        status = status
+    )
+    
+    payment.save()
+    
+    if create:
+        subject = 'Payment Successful: Your Payment Has Been Processed'
+        message = f"""
+        Dear Customer,
+
+        We are pleased to inform you that your payment has been successfully processed.
+
+        Payment Details:
+        Amount: {amount} {currency}
+        Payment Status: {status}
+
+        Thank you for your payment. We appreciate your business!
+
+        Best regards,
+        Assure Tech
+        """ 
+        
+        return send_mail(email, subject, message)
+          
+    elif payment.status != 'paid':   
+        
+        subject = 'Payment Warning: Payment Status Not Successful'
+        message = f"""
+        Dear Customer,
+
+        We noticed that your payment was not successful.
+
+        Payment Details:
+        Amount: {amount} {currency}
+        Payment Status: {status}
+
+        Please check your payment method or contact support for assistance.
+
+        Best regards,
+        Assure Tech
+        """
+        
+        return send_mail(email, subject, message)
+    
+    else:
+        return "Email is not send successfully"
+    
+    
+
+
+# Premium user
+
+
+def premium_user(data):
+    try:
+        email = str(data['email'])
+        premium = Premium.objects.filter(email=email).exists()
+        return premium
+    except AttributeError:
+        return False
 
 
     
